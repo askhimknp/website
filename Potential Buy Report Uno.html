@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>India Stock Report — 8 Stocks</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0b0e17;--surf:#111520;--surf2:#181d2c;--surf3:#1e2435;
+    --bdr:rgba(255,255,255,0.06);--bdr2:rgba(255,255,255,0.12);
+    --txt:#dde1f0;--muted:#6b738f;--acc:#e8b86d;--acc2:#6c9ef8;
+    --g:#52d68a;--g-bg:rgba(82,214,138,0.1);--g-bd:rgba(82,214,138,0.22);
+    --a:#f5c542;--a-bg:rgba(245,197,66,0.1);--a-bd:rgba(245,197,66,0.22);
+    --r:#f47270;--r-bg:rgba(244,114,112,0.1);--r-bd:rgba(244,114,112,0.22);
+    --b:#6c9ef8;--b-bg:rgba(108,158,248,0.1);--b-bd:rgba(108,158,248,0.22);
+    --p:#b07ef8;--p-bg:rgba(176,126,248,0.1);--p-bd:rgba(176,126,248,0.22);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html{font-size:13.5px;background:var(--bg);color:var(--txt);}
+  body{font-family:'Inter',sans-serif;min-height:100vh;}
+
+  /* HEADER */
+  .hdr{background:linear-gradient(160deg,#0b0e17 0%,#10152a 100%);border-bottom:1px solid var(--bdr2);padding:26px 52px 22px;display:flex;align-items:flex-end;justify-content:space-between;}
+  .hdr-title{font-family:'Playfair Display',serif;font-size:26px;letter-spacing:-.3px;}
+  .hdr-title em{color:var(--acc);font-style:normal;}
+  .hdr-sub{font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-top:5px;}
+  .hdr-pill{background:var(--surf2);border:1px solid var(--bdr2);border-radius:6px;padding:5px 14px;font-size:10.5px;color:var(--muted);font-family:'IBM Plex Mono',monospace;}
+
+  /* STOCK NAV */
+  .snav{display:flex;gap:0;padding:0 52px;background:var(--surf);border-bottom:1px solid var(--bdr);overflow-x:auto;scrollbar-width:none;}
+  .snav::-webkit-scrollbar{display:none;}
+  .snav-btn{padding:13px 20px;font-family:'Inter',sans-serif;font-size:12.5px;font-weight:500;color:var(--muted);background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;transition:.18s;display:flex;align-items:center;gap:7px;}
+  .snav-btn:hover{color:var(--txt);}
+  .snav-btn.active{color:var(--acc);border-bottom-color:var(--acc);}
+  .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+
+  /* MAIN */
+  .main{padding:28px 52px 48px;max-width:1320px;margin:0 auto;}
+  .spanel{display:none;} .spanel.on{display:block;}
+
+  /* HERO */
+  .hero{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:start;margin-bottom:22px;}
+  .h-tag{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:7px;}
+  .h-name{font-family:'Playfair Display',serif;font-size:30px;letter-spacing:-.4px;line-height:1.1;}
+  .h-desc{font-size:12.5px;color:var(--muted);margin-top:7px;max-width:600px;line-height:1.65;}
+  .h-price{font-family:'IBM Plex Mono',monospace;font-size:34px;font-weight:500;color:var(--acc);text-align:right;}
+  .h-price-sub{font-size:10px;color:var(--muted);margin-top:3px;text-align:right;}
+  .h-range{font-size:11px;color:var(--muted);margin-top:5px;text-align:right;}
+  .h-range span{color:var(--txt);font-weight:500;}
+
+  /* SIGNAL */
+  .sig{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:100px;font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;}
+  .sig-g{background:var(--g-bg);color:var(--g);border:1px solid var(--g-bd);}
+  .sig-a{background:var(--a-bg);color:var(--a);border:1px solid var(--a-bd);}
+  .sig-r{background:var(--r-bg);color:var(--r);border:1px solid var(--r-bd);}
+  .sig-b{background:var(--b-bg);color:var(--b);border:1px solid var(--b-bd);}
+  .sig-p{background:var(--p-bg);color:var(--p);border:1px solid var(--p-bd);}
+
+  /* GRIDS */
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+  .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;}
+  .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}
+  .gf{margin-bottom:14px;}
+
+  /* CARD */
+  .card{background:var(--surf);border:1px solid var(--bdr);border-radius:10px;padding:18px 20px;}
+  .card.cg{border-color:var(--g-bd);} .card.ca{border-color:var(--a-bd);} .card.cr{border-color:var(--r-bd);} .card.cb{border-color:var(--b-bd);}
+
+  /* METRIC TILE */
+  .mt{background:var(--surf2);border:1px solid var(--bdr);border-radius:8px;padding:13px 15px;}
+  .mt-l{font-size:9.5px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:5px;}
+  .mt-v{font-family:'IBM Plex Mono',monospace;font-size:17px;font-weight:500;color:var(--txt);}
+  .mt-s{font-size:10px;color:var(--muted);margin-top:3px;}
+
+  /* SECTION LABEL */
+  .sl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+  .sl::after{content:'';flex:1;height:1px;background:var(--bdr);}
+
+  /* TABLE */
+  table{width:100%;border-collapse:collapse;font-size:12px;}
+  th{text-align:left;padding:7px 10px;font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);border-bottom:1px solid var(--bdr);}
+  td{padding:9px 10px;color:var(--txt);border-bottom:1px solid var(--bdr);line-height:1.4;}
+  tr:last-child td{border-bottom:none;}
+  tr:hover td{background:rgba(255,255,255,0.015);}
+  .tmuted{color:var(--muted);font-size:11px;}
+  .pos{color:var(--g);font-family:'IBM Plex Mono',monospace;font-size:11.5px;}
+  .neg{color:var(--r);font-family:'IBM Plex Mono',monospace;font-size:11.5px;}
+  .neu{color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:11.5px;}
+
+  /* BADGE */
+  .bg{display:inline-block;padding:2px 8px;border-radius:4px;font-size:9.5px;font-weight:600;letter-spacing:.3px;}
+  .bg-g{background:var(--g-bg);color:var(--g);} .bg-a{background:var(--a-bg);color:var(--a);}
+  .bg-r{background:var(--r-bg);color:var(--r);} .bg-b{background:var(--b-bg);color:var(--b);}
+  .bg-n{background:rgba(255,255,255,0.06);color:var(--muted);}
+
+  /* STAT ROW */
+  .sr{display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;border-bottom:1px solid var(--bdr);}
+  .sr:last-child{border-bottom:none;}
+  .sr-l{font-size:11.5px;color:var(--muted);}
+  .sr-v{font-size:11.5px;color:var(--txt);font-weight:500;font-family:'IBM Plex Mono',monospace;text-align:right;}
+
+  /* SCENARIO */
+  .sc{background:var(--surf2);border-radius:8px;padding:13px 15px;border-left:3px solid;}
+  .sc.bear{border-color:var(--r);} .sc.base{border-color:var(--a);} .sc.bull{border-color:var(--g);}
+  .sc-t{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+  .sc-b{font-size:11.5px;color:var(--muted);line-height:1.55;}
+
+  /* FLAG */
+  .flag{background:var(--a-bg);border:1px solid var(--a-bd);border-radius:8px;padding:11px 15px;margin-bottom:10px;font-size:12px;line-height:1.6;}
+  .flag strong{color:var(--a);}
+  .flag.fr{background:var(--r-bg);border-color:var(--r-bd);}
+  .flag.fr strong{color:var(--r);}
+  .flag.fg{background:var(--g-bg);border-color:var(--g-bd);}
+  .flag.fg strong{color:var(--g);}
+
+  /* VIEW BOX */
+  .vb{border-radius:10px;padding:22px;margin-bottom:14px;}
+  .vb.vg{background:var(--g-bg);border:1px solid var(--g-bd);}
+  .vb.va{background:var(--a-bg);border:1px solid var(--a-bd);}
+  .vb.vr{background:var(--r-bg);border:1px solid var(--r-bd);}
+  .vb-t{font-family:'Playfair Display',serif;font-size:18px;margin-bottom:7px;}
+  .vb-t.g{color:var(--g);} .vb-t.a{color:var(--a);} .vb-t.r{color:var(--r);}
+  .vb-d{font-size:12.5px;line-height:1.65;opacity:.88;}
+  .vb-disc{font-size:10.5px;opacity:.45;margin-top:12px;font-style:italic;}
+
+  /* BULLETS */
+  .bl{list-style:none;}
+  .bl li{display:flex;gap:9px;padding:7px 0;border-bottom:1px solid var(--bdr);font-size:12.5px;line-height:1.5;}
+  .bl li:last-child{border-bottom:none;}
+  .bi{font-size:14px;min-width:17px;}
+
+  /* PEER HIGHLIGHT */
+  .peer-you td{background:rgba(232,184,109,0.05);}
+  .peer-you td:first-child{font-weight:600;color:var(--acc);}
+
+  /* FOOTER */
+  .ftr{background:var(--surf);border-top:1px solid var(--bdr);padding:18px 52px;font-size:10.5px;color:var(--muted);line-height:1.7;margin-top:40px;}
+
+  @media(max-width:900px){
+    .hdr,.snav,.main,.ftr{padding-left:18px;padding-right:18px;}
+    .hero,.g2,.g3,.g4{grid-template-columns:1fr;}
+    .h-price,.h-price-sub,.h-range{text-align:left;}
+  }
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div>
+    <div class="hdr-title">India Equity <em>Fundamentals</em> — 8 Stocks</div>
+    <div class="hdr-sub">HAVELLS · ABBOTINDIA · CROMPTON · HAL · COFORGE · L&T · LTM · SUZLON &nbsp;|&nbsp; DATA: APR 2026</div>
+  </div>
+  <div class="hdr-pill">⚠ Reference only · Not investment advice</div>
+</div>
+
+<!-- NAV -->
+<div class="snav">
+  <button class="snav-btn active" onclick="show(0)"><span class="dot" style="background:#e8b86d"></span>Havells</button>
+  <button class="snav-btn" onclick="show(1)"><span class="dot" style="background:#52d68a"></span>Abbott India</button>
+  <button class="snav-btn" onclick="show(2)"><span class="dot" style="background:#6c9ef8"></span>Crompton</button>
+  <button class="snav-btn" onclick="show(3)"><span class="dot" style="background:#f47270"></span>HAL</button>
+  <button class="snav-btn" onclick="show(4)"><span class="dot" style="background:#b07ef8"></span>Coforge</button>
+  <button class="snav-btn" onclick="show(5)"><span class="dot" style="background:#f5c542"></span>L&T</button>
+  <button class="snav-btn" onclick="show(6)"><span class="dot" style="background:#52d68a"></span>LTM (LTIMindtree)</button>
+  <button class="snav-btn" onclick="show(7)"><span class="dot" style="background:#6c9ef8"></span>Suzlon</button>
+</div>
+
+<div class="main">
+
+<!-- ══════════════ 0: HAVELLS ══════════════ -->
+<div class="spanel on" id="s0">
+  <div class="hero">
+    <div>
+      <div class="h-tag">NSE: HAVELLS · FMEG · Consumer Electricals</div>
+      <div class="h-name">Havells India Ltd</div>
+      <div class="h-desc">India's leading Fast-Moving Electrical Goods (FMEG) company — cables & wires, switchgear, fans, lighting, and consumer appliances (via Lloyd brand: ACs, TVs, washing machines). Revenues from 20+ product categories, 20,000+ SKUs. Strong brand trust, 'Make in India' manufacturing, and pan-India distribution. Cables is the largest segment (~32% revenue). Lloyd is the key growth bet in premium consumer durables.</div>
+    </div>
+    <div>
+      <div class="h-price">₹1,232</div>
+      <div class="h-price-sub">NSE CMP · Mar 27, 2026</div>
+      <div class="h-range">52W: <span>₹1,217</span> — <span>₹1,674</span></div>
+      <div style="margin-top:9px"><span class="sig sig-a">📊 MODERATE</span></div>
+    </div>
+  </div>
+
+  <div class="g4">
+    <div class="mt"><div class="mt-l">Market Cap</div><div class="mt-v">₹77,215 Cr</div><div class="mt-s">NSE · Mar 2026</div></div>
+    <div class="mt"><div class="mt-l">P/E (TTM)</div><div class="mt-v">~52x</div><div class="mt-s">Premium vs peers ~58x</div></div>
+    <div class="mt"><div class="mt-l">P/B</div><div class="mt-v">~9.3x</div><div class="mt-s">High — brand premium</div></div>
+    <div class="mt"><div class="mt-l">Revenue (TTM)</div><div class="mt-v">₹22,366 Cr</div><div class="mt-s">Screener.in</div></div>
+    <div class="mt"><div class="mt-l">Q3 FY26 Revenue</div><div class="mt-v">₹5,588 Cr</div><div class="mt-s">+14.3% YoY</div></div>
+    <div class="mt"><div class="mt-l">Q3 FY26 Net Profit</div><div class="mt-v">₹301 Cr</div><div class="mt-s">+8% YoY — margin lag</div></div>
+    <div class="mt"><div class="mt-l">Promoter</div><div class="mt-v">59.4%</div><div class="mt-s">Stable · No pledging</div></div>
+    <div class="mt"><div class="mt-l">Div Yield</div><div class="mt-v">~0.8%</div><div class="mt-s">₹4/sh interim FY26</div></div>
+  </div>
+
+  <div class="flag"><strong>⚠ MARGIN PRESSURE:</strong> Revenue is growing at 14% but net profit only 8% — Lloyd (AC/durables) and rising copper/commodity costs are compressing margins. EBITDA margin ~9% is low for a premium brand. The critical watch: does Lloyd scale to profitability or remain a drag?</div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="sl">Valuation & Growth</div>
+      <table>
+        <thead><tr><th>Metric</th><th>Value</th><th>Context</th><th>Signal</th></tr></thead>
+        <tbody>
+          <tr><td>P/E</td><td class="neu">~52x</td><td class="tmuted">5Y avg ~60x · Near low</td><td><span class="bg bg-a">FAIR vs HISTORY</span></td></tr>
+          <tr><td>Revenue 3Y CAGR</td><td class="pos">~12%</td><td class="tmuted">Cables + Lloyd driving</td><td><span class="bg bg-g">GOOD</span></td></tr>
+          <tr><td>Net Profit 3Y CAGR</td><td class="neu">~7%</td><td class="tmuted">Lags revenue — margins thin</td><td><span class="bg bg-a">MODERATE</span></td></tr>
+          <tr><td>ROE (3Y avg)</td><td class="pos">~15%</td><td class="tmuted">Adequate</td><td><span class="bg bg-a">AVERAGE</span></td></tr>
+          <tr><td>Debt/Equity</td><td class="pos">~0.0x</td><td class="tmuted">Near debt-free</td><td><span class="bg bg-g">SAFE</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="sl">3-Year Scenarios</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="sc bear"><div class="sc-t" style="color:var(--r)">🐢 Bear</div><div class="sc-b">Copper stays elevated; Lloyd margin recovery delayed; net profit CAGR 5–6%; stock re-rates to 40–45x. Lackluster returns.</div></div>
+        <div class="sc base"><div class="sc-t" style="color:var(--a)">🚶 Base</div><div class="sc-b">Revenue CAGR ~12%; Lloyd breaks even; EBITDA margins inch to 11%; EPS CAGR ~12–14%. Stock at ₹1,500–1,700.</div></div>
+        <div class="sc bull"><div class="sc-t" style="color:var(--g)">🚀 Bull</div><div class="sc-b">Lloyd becomes a major profit centre; margins expand to 13–14%; re-rating to 65x; EPS CAGR 18–20%. Structural FMEG play.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="vb va">
+    <div class="vb-t a">MODERATE — Quality Brand, Margin Recovery Awaited</div>
+    <div class="vb-d">Havells is an unquestionable quality franchise — zero debt, strong distribution, household brands, and secular FMEG tailwinds from India's infra build-out and appliance penetration. The issue is near-term profitability: Lloyd's high fixed-cost structure and commodity exposure keep margins thin while revenue booms. At 52x P/E, the stock prices in recovery — which makes execution on the Lloyd margin path the single biggest determinant of returns over 3 years. The stock is off ~27% from its 52-week high, offering a better entry than 12 months ago.</div>
+    <div class="vb-disc">VIEW only · Not a buy/sell recommendation · Verify at Screener.in before acting</div>
+  </div>
+</div>
+
+<!-- ══════════════ 1: ABBOTT INDIA ══════════════ -->
+<div class="spanel" id="s1">
+  <div class="hero">
+    <div>
+      <div class="h-tag">NSE: ABBOTINDIA · Pharmaceuticals · Healthcare</div>
+      <div class="h-name">Abbott India Ltd</div>
+      <div class="h-desc">India subsidiary of global pharma giant Abbott Laboratories (USA) — sells branded prescription medicines across gastroenterology, women's health, CNS, metabolic, vaccines, and consumer care. Strong moat through parent's global R&D pipeline, premium brand positioning, and doctor-trust built over 80+ years in India. Business is purely distribution-led (no manufacturing risk). Recently signed to commercialise Novo Nordisk's Ozempic (semaglutide) in India — a significant long-term catalyst.</div>
+    </div>
+    <div>
+      <div class="h-price">₹26,285</div>
+      <div class="h-price-sub">NSE CMP · Apr 2, 2026</div>
+      <div class="h-range">52W: <span>₹25,350</span> — <span>₹37,000</span></div>
+      <div style="margin-top:9px"><span class="sig sig-g">✅ MODERATE-STRONG</span></div>
+    </div>
+  </div>
+
+  <div class="g4">
+    <div class="mt"><div class="mt-l">Market Cap</div><div class="mt-v">₹55,900 Cr</div><div class="mt-s">NSE Apr 2, 2026</div></div>
+    <div class="mt"><div class="mt-l">P/E (TTM)</div><div class="mt-v">~37x</div><div class="mt-s">Down from 50x+ — better value</div></div>
+    <div class="mt"><div class="mt-l">P/B</div><div class="mt-v">~12.8x</div><div class="mt-s">High — reflects ROE quality</div></div>
+    <div class="mt"><div class="mt-l">Revenue (TTM)</div><div class="mt-v">₹6,824 Cr</div><div class="mt-s">+10% YoY · Screener</div></div>
+    <div class="mt"><div class="mt-l">Net Profit (TTM)</div><div class="mt-v">₹1,524 Cr</div><div class="mt-s">+~8% YoY</div></div>
+    <div class="mt"><div class="mt-l">ROE (3Y avg)</div><div class="mt-v">34.2%</div><div class="mt-s">Exceptional · Screener</div></div>
+    <div class="mt"><div class="mt-l">Pre-Tax Margin</div><div class="mt-v">~29%</div><div class="mt-s">Best-in-class pharma India</div></div>
+    <div class="mt"><div class="mt-l">Promoter</div><div class="mt-v">75.0%</div><div class="mt-s">Abbott Laboratories USA · Stable</div></div>
+  </div>
+
+  <div class="flag fg"><strong>✅ OZEMPIC CATALYST:</strong> Abbott India signed to commercialise Novo Nordisk's semaglutide (Ozempic/Extensior) in India — announced Feb 27, 2026. This is potentially a blockbuster product in India's fast-growing diabetes/obesity treatment market. Could be a significant revenue driver over the 3-year horizon.</div>
+
+  <div class="flag"><strong>⚠ STOCK -29% FROM 52W HIGH:</strong> Abbott India has corrected from ₹37,000 to ~₹26,285 — one of the steepest pharma sector de-ratings. This appears valuation-led (P/E compression from ~50x to ~37x) rather than business deterioration. Core metrics remain excellent.</div>
+
+  <div class="g2">
+    <div class="card cg">
+      <div class="sl">Valuation & Fundamentals</div>
+      <table>
+        <thead><tr><th>Metric</th><th>Value</th><th>Context</th><th>Signal</th></tr></thead>
+        <tbody>
+          <tr><td>P/E</td><td class="neu">~37x</td><td class="tmuted">39% premium to pharma peers ~26x</td><td><span class="bg bg-a">PREMIUM — JUSTIFIED?</span></td></tr>
+          <tr><td>ROE</td><td class="pos">34.2%</td><td class="tmuted">Far above sector avg ~15%</td><td><span class="bg bg-g">EXCEPTIONAL</span></td></tr>
+          <tr><td>Revenue 5Y CAGR</td><td class="pos">~9.4%</td><td class="tmuted">Consistent branded pharma growth</td><td><span class="bg bg-g">STEADY</span></td></tr>
+          <tr><td>Net Profit 5Y CAGR</td><td class="pos">~15%</td><td class="tmuted">FY20 ₹593 Cr → FY25 ₹1,414 Cr</td><td><span class="bg bg-g">EXCELLENT</span></td></tr>
+          <tr><td>Debt/Equity</td><td class="pos">~0x</td><td class="tmuted">Debt-free, cash rich</td><td><span class="bg bg-g">SAFE</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="sl">3-Year Scenarios</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="sc bear"><div class="sc-t" style="color:var(--r)">🐢 Bear</div><div class="sc-b">Ozempic uptake slower than expected; NLEM price controls bite; revenue CAGR 7%; P/E stays at 35x. Limited upside from current level.</div></div>
+        <div class="sc base"><div class="sc-t" style="color:var(--a)">🚶 Base</div><div class="sc-b">Branded pharma compounding at 10%; Ozempic adds meaningful revenue by FY28; Net profit CAGR 14–16%; stock at ₹34,000–40,000.</div></div>
+        <div class="sc bull"><div class="sc-t" style="color:var(--g)">🚀 Bull</div><div class="sc-b">Ozempic is a blockbuster; parent pipeline keeps coming; ROE sustains 35%+; stock re-rates to ₹50,000+ over 3-4 years.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="vb vg">
+    <div class="vb-t g">MODERATE-STRONG — Compounding Machine at a Correction</div>
+    <div class="vb-d">Abbott India is one of the rarest businesses on Indian exchanges — consistent 34% ROE, zero debt, 29% pre-tax margins, and a world-class parent pipeline. The stock has de-rated 29% from peak, bringing P/E to a more reasonable 37x vs its own history of 45–55x. The Ozempic India commercialisation deal is a genuine potential game-changer in a market where GLP-1 drugs are just beginning to scale. For a 3-year investor, the risk-reward is more favourable than it was a year ago.</div>
+    <div class="vb-disc">VIEW only · Not a buy/sell recommendation</div>
+  </div>
+</div>
+
+<!-- ══════════════ 2: CROMPTON ══════════════ -->
+<div class="spanel" id="s2">
+  <div class="hero">
+    <div>
+      <div class="h-tag">NSE: CROMPTON · Consumer Electricals · Fans / Pumps / Lighting</div>
+      <div class="h-name">Crompton Greaves<br>Consumer Electricals</div>
+      <div class="h-desc">India's market leader in residential fans and pumps, with a growing portfolio in lighting, kitchen appliances, and water heaters. Separated from the industrial Crompton Greaves entity in 2016. In 'Crompton 2.0' mode since June 2023 — investing in premiumisation, brand, and innovation (~170 new products in FY25). Key risk: margins under pressure from commodity costs and Butterfly acquisition integration. Recent largest-ever solar water pump order (₹101+ Cr) from Maharashtra signals B2B diversification.</div>
+    </div>
+    <div>
+      <div class="h-price">₹232</div>
+      <div class="h-price-sub">NSE CMP · Apr 1, 2026</div>
+      <div class="h-range">52W: <span>₹217</span> — <span>₹363</span></div>
+      <div style="margin-top:9px"><span class="sig sig-a">📊 MODERATE</span></div>
+    </div>
+  </div>
+
+  <div class="g4">
+    <div class="mt"><div class="mt-l">Market Cap</div><div class="mt-v">₹14,900 Cr</div><div class="mt-s">NSE Mar 2026</div></div>
+    <div class="mt"><div class="mt-l">P/E (TTM)</div><div class="mt-v">~31x</div><div class="mt-s">33% discount to peers ~47x</div></div>
+    <div class="mt"><div class="mt-l">P/B</div><div class="mt-v">~4.1x</div><div class="mt-s">In-line with sector</div></div>
+    <div class="mt"><div class="mt-l">Revenue (TTM)</div><div class="mt-v">₹7,873 Cr</div><div class="mt-s">+7.5% YoY FY25</div></div>
+    <div class="mt"><div class="mt-l">Net Profit (FY25)</div><div class="mt-v">₹472 Cr</div><div class="mt-s">+26% YoY — recovery</div></div>
+    <div class="mt"><div class="mt-l">Q3 FY26 Profit</div><div class="mt-v">₹98 Cr</div><div class="mt-s">-10.5% YoY (commodity hit)</div></div>
+    <div class="mt"><div class="mt-l">Debt/Equity</div><div class="mt-v">~0x</div><div class="mt-s">Near debt-free</div></div>
+    <div class="mt"><div class="mt-l">Dividend Yield</div><div class="mt-v">~1.3%</div><div class="mt-s">₹3/sh FY25</div></div>
+  </div>
+
+  <div class="flag"><strong>⚠ MARGIN PRESSURE + MANAGEMENT TRANSITION:</strong> Q2 FY26 consolidated profit fell 43% YoY; Q3 FY26 down 10.5% YoY — copper and commodity inflation eating margins. CEO transition underway. The 'Crompton 2.0' premiumisation strategy is early-stage and not yet reflecting in margin improvement.</div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="sl">Valuation & Fundamentals</div>
+      <table>
+        <thead><tr><th>Metric</th><th>Value</th><th>Context</th><th>Signal</th></tr></thead>
+        <tbody>
+          <tr><td>P/E</td><td class="pos">~31x</td><td class="tmuted">Deep discount to sector 47x avg</td><td><span class="bg bg-g">RELATIVELY CHEAP</span></td></tr>
+          <tr><td>Revenue 3Y CAGR</td><td class="pos">~8%</td><td class="tmuted">Steady, not spectacular</td><td><span class="bg bg-a">MODERATE</span></td></tr>
+          <tr><td>EBITDA Margin</div><td class="neg">~10%</td><td class="tmuted">Below historical 13–14%</td><td><span class="bg bg-r">COMPRESSED</span></td></tr>
+          <tr><td>ROE</td><td class="neu">~16%</td><td class="tmuted">Dragged by Butterfly acquisition</td><td><span class="bg bg-a">AVERAGE</span></td></tr>
+          <tr><td>52W performance</td><td class="neg">-36%</td><td class="tmuted">Sector underperformer</td><td><span class="bg bg-r">WEAK PRICE ACTION</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="sl">3-Year Scenarios</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="sc bear"><div class="sc-t" style="color:var(--r)">🐢 Bear</div><div class="sc-b">Commodity inflation persists; Butterfly drags; Crompton 2.0 fails to lift margins. EPS growth sub-5%; stock stays range-bound ₹200–240.</div></div>
+        <div class="sc base"><div class="sc-t" style="color:var(--a)">🚶 Base</div><div class="sc-b">Margins recover to 12% by FY27 as inputs normalise; EPS CAGR 15%; premiumisation gains traction. Stock at ₹340–380 (sector re-rating).</div></div>
+        <div class="sc bull"><div class="sc-t" style="color:var(--g)">🚀 Bull</div><div class="sc-b">Crompton 2.0 delivers; solar pumps B2B scales; Butterfly synergies materialise. EPS CAGR 20%+; stock at ₹450+.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="vb va">
+    <div class="vb-t a">MODERATE — Value Trap or Turnaround? Margins Are the Key</div>
+    <div class="vb-d">Crompton is the cheapest stock in its consumer electricals peer group (31x vs 47x sector PE) — but that discount exists for a reason. Margins have been structurally compressed by commodity costs, the Butterfly acquisition overhang, and management transition noise. The bear case is it stays cheap because profitability doesn't recover. The bull case is 'Crompton 2.0' works — premiumisation, fan upgrades, solar pumps, and Butterfly integration all fire simultaneously. At ~₹232 with near-zero debt, downside is limited but so is near-term upside visibility.</div>
+    <div class="vb-disc">VIEW only · Not a buy/sell recommendation</div>
+  </div>
+</div>
+
+<!-- ══════════════ 3: HAL ══════════════ -->
+<div class="spanel" id="s3">
+  <div class="hero">
+    <div>
+      <div class="h-tag">NSE: HAL · Defence & Aerospace · PSU · Navratna</div>
+      <div class="h-name">Hindustan Aeronautics<br>Limited</div>
+      <div class="h-desc">India's only integrated aerospace and defence manufacturer — designs, manufactures, repairs, and overhauls aircraft, helicopters, aero-engines, avionics, and structures for the Indian Air Force, Army, Navy, and Coast Guard. Key products: LCA Tejas, Dhruv ALH, Dornier-228, HTT-40 trainer, Su-30 MKI. FY26 provisional revenue: ₹32,250 Cr. Order book of ₹2.54 lakh Cr (8x annual revenue) including the massive 97 LCA Mk1A order worth ₹62,370 Cr. A core Atmanirbhar Bharat bet.</div>
+    </div>
+    <div>
+      <div class="h-price">₹3,671</div>
+      <div class="h-price-sub">NSE CMP · Apr 1, 2026</div>
+      <div class="h-range">52W: <span>₹3,704</span> — <span>₹5,165</span></div>
+      <div style="margin-top:9px"><span class="sig sig-g">✅ MODERATE-STRONG</span></div>
+    </div>
+  </div>
+
+  <div class="g4">
+    <div class="mt"><div class="mt-l">Market Cap</div><div class="mt-v">₹2,46,581 Cr</div><div class="mt-s">Screener.in</div></div>
+    <div class="mt"><div class="mt-l">P/E (TTM)</div><div class="mt-v">~28–30x</div><div class="mt-s">64% disc to peers ~79x</div></div>
+    <div class="mt"><div class="mt-l">P/B</div><div class="mt-v">~6.5x</div><div class="mt-s">51% disc to peers ~13x</div></div>
+    <div class="mt"><div class="mt-l">Order Book</div><div class="mt-v">₹2.54L Cr</div><div class="mt-s">~8x FY26 revenue — strong visibility</div></div>
+    <div class="mt"><div class="mt-l">FY26 Revenue (Prov.)</div><div class="mt-v">₹32,250 Cr</div><div class="mt-s">+4.1% YoY vs ₹30,981 Cr</div></div>
+    <div class="mt"><div class="mt-l">Net Profit 5Y CAGR</div><div class="mt-v">24.5%</div><div class="mt-s">Screener — exceptional</div></div>
+    <div class="mt"><div class="mt-l">ROE (3Y avg)</div><div class="mt-v">27.3%</div><div class="mt-s">Screener.in</div></div>
+    <div class="mt"><div class="mt-l">Debt/Equity</div><div class="mt-v">~0x</div><div class="mt-s">Net cash ₹44,471 Cr</div></div>
+  </div>
+
+  <div class="flag fg"><strong>✅ MASSIVE ORDER BOOK:</strong> ₹2.54 lakh Cr order book (Apr 2026) including 97 LCA Mk1A jets (₹62,370 Cr), 156 LCH helicopters, Su-30 MKI upgrade, and ALH helicopters. Revenue is locked in for 7–8 years. This is arguably the most visible revenue pipeline in the entire listed Indian defence space.</div>
+  <div class="flag"><strong>⚠ DELIVERY DELAYS:</strong> LCA Mk1A and HTT-40 deliveries have been delayed due to supply chain issues (engine imports from GE/Safran, delayed sub-systems). FY26 revenue grew only 4% vs a much higher order intake. Execution risk remains the primary concern for investors.</div>
+
+  <div class="g2">
+    <div class="card cg">
+      <div class="sl">Valuation vs Peers — Defence</div>
+      <table>
+        <thead><tr><th>Company</th><th>P/E</th><th>ROE</th><th>5Y Profit CAGR</th><th>Standing</th></tr></thead>
+        <tbody>
+          <tr class="peer-you"><td>HAL ◀</td><td class="neu">~28–30x</td><td class="pos">27.3%</td><td class="pos">24.5%</td><td><span class="bg bg-g">CHEAPEST IN DEFENCE</span></td></tr>
+          <tr><td>BEL</td><td>~45x</td><td>~22%</td><td>~18%</td><td><span class="bg bg-a">MODERATE</span></td></tr>
+          <tr><td>MTAR / Data Patterns</td><td>~60–80x</td><td>~15–20%</td><td>~20%</td><td><span class="bg bg-r">EXPENSIVE</span></td></tr>
+          <tr><td>Paras Defence</td><td>~80x+</td><td>~12%</td><td>~25%</td><td><span class="bg bg-r">VERY EXPENSIVE</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="sl">3-Year Scenarios</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="sc bear"><div class="sc-t" style="color:var(--r)">🐢 Bear</div><div class="sc-b">LCA Mk1A delivery slips further; supply chain issues persist; revenue CAGR 8–10%. P/E compression to 22x as private sector defence gains prominence.</div></div>
+        <div class="sc base"><div class="sc-t" style="color:var(--a)">🚶 Base</div><div class="sc-b">Deliveries accelerate from FY27 onwards; revenue CAGR 15%+; profit CAGR 20%; HAL at ₹5,500–6,500 in 3 years.</div></div>
+        <div class="sc bull"><div class="sc-t" style="color:var(--g)">🚀 Bull</div><div class="sc-b">AMCA gets HAL design role; civil aviation scale up; export orders materialize; profit CAGR 25%+. Stock at ₹8,000+ over 4–5 years.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="vb vg">
+    <div class="vb-t g">MODERATE-STRONG — India's Defence Irreplaceable, Now at Discount</div>
+    <div class="vb-d">HAL is the backbone of India's sovereign defence aviation capability — there is simply no substitute for what it does. The ₹2.54 lakh Cr order book provides extraordinary revenue visibility. At 28–30x P/E, it's the cheapest quality defence stock in India (peers trade at 60–80x). The stock has corrected ~29% from its 52-week high, driven by delivery delay concerns. The 3-year thesis is straightforward: as LCA Mk1A deliveries accelerate from FY27, revenue and profits will compound at 15–20% pa from a now-depressed base. Delivery execution is the single biggest risk and catalyst.</div>
+    <div class="vb-disc">VIEW only · Not a buy/sell recommendation</div>
+  </div>
+</div>
+
+<!-- ══════════════ 4: COFORGE ══════════════ -->
+<div class="spanel" id="s4">
+  <div class="hero">
+    <div>
+      <div class="h-tag">NSE: COFORGE · IT Services · Mid-cap</div>
+      <div class="h-name">Coforge Ltd</div>
+      <div class="h-desc">Mid-tier Indian IT services company specialising in BFSI (insurance, banking), travel, and healthcare verticals. Known for aggressive deal wins and above-industry revenue growth — FY25 revenue grew 33.8% YoY to ₹12,051 Cr (includes Xceltrait inorganic). Now acquiring US-based Encora for ~$2.5B in combined revenue, a transformational deal to scale AI-led digital engineering. Americas (55%) and Europe (37%) are key geographies. Key strength: large deal wins +56% YoY to $1.9B.</div>
+    </div>
+    <div>
+      <div class="h-price">₹1,213</div>
+      <div class="h-price-sub">NSE CMP · Apr 3, 2026</div>
+      <div class="h-range">52W: <span>₹1,008</span> — <span>₹1,994</span></div>
+      <div style="margin-top:9px"><span class="sig sig-a">⚡ MODERATE / HIGH RISK</span></div>
+    </div>
+  </div>
+
+  <div class="g4">
+    <div class="mt"><div class="mt-l">Market Cap</div><div class="mt-v">~₹40,700 Cr</div><div class="mt-s">NSE Apr 2026</div></div>
+    <div class="mt"><div class="mt-l">P/E (TTM)</div><div class="mt-v">~35–45x</div><div class="mt-s">Premium vs IT peers</div></div>
+    <div class="mt"><div class="mt-l">EV/EBITDA</div><div class="mt-v">~29x</div><div class="mt-s">Stockanalysis.com</div></div>
+    <div class="mt"><div class="mt-l">Revenue (TTM)</div><div class="mt-v">₹14,342 Cr</div><div class="mt-s">+14.5% YoY FY26 run-rate</div></div>
+    <div class="mt"><div class="mt-l">Order Intake FY26</div><div class="mt-v">$1.9B</div><div class="mt-s">+56% YoY — strong pipeline</div></div>
+    <div class="mt"><div class="mt-l">ROE</div><div class="mt-v">~15%</div><div class="mt-s">Below IT peers — acquisition impact</div></div>
+    <div class="mt"><div class="mt-l">Debt/Equity</div><div class="mt-v">~0.11x</div><div class="mt-s">Low debt pre-Encora</div></div>
+    <div class="mt"><div class="mt-l">1Y Stock Return</div><div class="mt-v">-15%</div><div class="mt-s">Outperformed IT index</div></div>
+  </div>
+
+  <div class="flag"><strong>⚠ ENCORA ACQUISITION — LARGE BET:</strong> Coforge is acquiring US-based Encora for ~$2.5B in combined revenue — this will significantly expand revenue but also increase integration risk, debt, and complexity. RBI has approved the overseas investment. Deal execution is the key variable for FY27 performance.</div>
+  <div class="flag"><strong>⚠ Q3 FY26 PROFIT DOWN 33%:</strong> Despite 5.1% revenue growth, net profit fell 33.4% due to exceptional items and costs. Adjusted operational margins have been stable at ~17%. The reported fall is somewhat misleading but investors should monitor.</div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="sl">Growth Profile vs IT Peers</div>
+      <table>
+        <thead><tr><th>Company</th><th>Rev Growth YoY</th><th>EBITDA Margin</th><th>Deal Wins</th><th>Standing</th></tr></thead>
+        <tbody>
+          <tr class="peer-you"><td>Coforge ◀</td><td class="pos">~14–15%</td><td class="neu">~17.6%</td><td class="pos">$1.9B +56%</td><td><span class="bg bg-g">HIGH GROWTH MID-TIER</span></td></tr>
+          <tr><td>TCS</td><td>~5%</td><td>~25%</td><td>$9.3B steady</td><td><span class="bg bg-b">LARGE / STABLE</span></td></tr>
+          <tr><td>LTM</td><td>~12%</td><td>~16–17%</td><td>Growing</td><td><span class="bg bg-b">PEER</span></td></tr>
+          <tr><td>Persistent</td><td>~25%</td><td>~16%</td><td>Strong</td><td><span class="bg bg-g">HIGH GROWTH</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="sl">3-Year Scenarios</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="sc bear"><div class="sc-t" style="color:var(--r)">🐢 Bear</div><div class="sc-b">Encora integration stumbles; debt burden weighs; global IT demand stays weak; revenue CAGR 8–10%. Stock at ₹900–1,100.</div></div>
+        <div class="sc base"><div class="sc-t" style="color:var(--a)">🚶 Base</div><div class="sc-b">Encora adds scale; revenue CAGR 18–22%; margins stabilise at 17–18%; EPS CAGR 20%. Stock at ₹1,800–2,200.</div></div>
+        <div class="sc bull"><div class="sc-t" style="color:var(--g)">🚀 Bull</div><div class="sc-b">Encora + AI engineering = differentiated positioning; large deal conversion accelerates; $5B+ revenue run-rate; stock at ₹3,000+ over 3–4 years.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="vb va">
+    <div class="vb-t a">MODERATE-HIGH RISK — Growth Story, But Encora Changes the Equation</div>
+    <div class="vb-d">Coforge has been one of India's best IT growth stories — consistent outperformance on deal wins and above-sector revenue growth. But the Encora acquisition introduces new risks: integration complexity, higher leverage, and the challenge of managing a much larger combined entity. If Encora is well-executed, Coforge at ₹1,213 could look extraordinarily cheap in 3 years. If not, it could struggle. The stock is already off ~39% from its 52-week high — the de-rating provides a better entry than the 2024 peak. Risk appetite is key.</div>
+    <div class="vb-disc">VIEW only · Not a buy/sell recommendation</div>
+  </div>
+</div>
+
+<!-- ══════════════ 5: L&T ══════════════ -->
+<div class="spanel" id="s5">
+  <div class="hero">
+    <div>
+      <div class="h-tag">NSE: LT · Infrastructure & Engineering · Nifty 50</div>
+      <div class="h-name">Larsen & Toubro Ltd</div>
+      <div class="h-desc">India's largest engineering and construction conglomerate — EPC solutions across infrastructure, hydrocarbon, power, defence, heavy engineering, and IT & financial services. 'Lakshya '26' strategy targets doubling revenue and order inflows vs FY21 baseline. Order book (~₹5.5–6 lakh Cr) provides multi-year revenue visibility. Key businesses: Construction (~51%), IT & Tech Services (~28%), Financial Services (~9%), Heavy Engineering, Defence. A direct proxy for India's infrastructure buildout.</div>
+    </div>
+    <div>
+      <div class="h-price">₹3,649</div>
+      <div class="h-price-sub">NSE CMP · Mar 25, 2026</div>
+      <div class="h-range">52W: <span>₹2,965</span> — <span>₹4,440</span></div>
+      <div style="margin-top:9px"><span class="sig sig-g">✅ MODERATE-STRONG</span></div>
+    </div>
+  </div>
+
+  <div class="g4">
+    <div class="mt"><div class="mt-l">Market Cap</div><div class="mt-v">₹4,97,030 Cr</div><div class="mt-s">Screener.in</div></div>
+    <div class="mt"><div class="mt-l">P/E (TTM)</div><div class="mt-v">~28–35x</div><div class="mt-s">Reasonable for quality EPC</div></div>
+    <div class="mt"><div class="mt-l">Revenue (FY25)</div><div class="mt-v">₹2,77,504 Cr</div><div class="mt-s">+15.4% YoY · Screener</div></div>
+    <div class="mt"><div class="mt-l">Net Profit (FY25)</div><div class="mt-v">₹10,871 Cr</div><div class="mt-s">+16.5% YoY</div></div>
+    <div class="mt"><div class="mt-l">Q3 FY26 Revenue</div><div class="mt-v">₹71,450 Cr</div><div class="mt-s">Strong sequential growth</div></div>
+    <div class="mt"><div class="mt-l">Q3 FY26 Net Profit</div><div class="mt-v">₹3,215 Cr</div><div class="mt-s">-4.3% YoY (timing of projects)</div></div>
+    <div class="mt"><div class="mt-l">Dividend</div><div class="mt-v">₹34/sh</div><div class="mt-s">FY25 · Yield ~0.9%</div></div>
+    <div class="mt"><div class="mt-l">1Y Stock Return</div><div class="mt-v">+5.6%</div><div class="mt-s">Outperformed market</div></div>
+  </div>
+
+  <div class="flag fg"><strong>✅ INDIA INFRA PLAY — STRONGEST ORDER BOOK:</strong> L&T's consolidated order book of ~₹5.5+ lakh Cr is one of the largest in Indian listed equities. This covers roads, railways, metro, data centres, defence, and Middle East hydrocarbons. Revenue is locked in for 4–5 years — rare for any company this size.</div>
+
+  <div class="g2">
+    <div class="card cg">
+      <div class="sl">Key Fundamentals</div>
+      <table>
+        <thead><tr><th>Metric</th><th>Value</th><th>Context</th><th>Signal</th></tr></thead>
+        <tbody>
+          <tr><td>Revenue 3Y CAGR</td><td class="pos">~14%</td><td class="tmuted">Strong EPC execution</td><td><span class="bg bg-g">GOOD</span></td></tr>
+          <tr><td>Net Profit 3Y CAGR</td><td class="pos">~15%</td><td class="tmuted">FY22→FY25 compounding</td><td><span class="bg bg-g">GOOD</span></td></tr>
+          <tr><td>ROE</td><td class="pos">~18–20%</td><td class="tmuted">Solid for capital-heavy EPC</td><td><span class="bg bg-g">GOOD</span></td></tr>
+          <tr><td>Debt/Equity</td><td class="neu">Moderate</td><td class="tmuted">Infra + NBFC arm carries debt</td><td><span class="bg bg-a">WATCH</span></td></tr>
+          <tr><td>Order Inflow FY26E</td><td class="pos">₹3–3.5L Cr</td><td class="tmuted">Lakshya '26 target on track</td><td><span class="bg bg-g">STRONG PIPELINE</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="sl">3-Year Scenarios</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="sc bear"><div class="sc-t" style="color:var(--r)">🐢 Bear</div><div class="sc-b">Govt capex slows post elections; Middle East orders stall; IT/tech arm slows. Revenue CAGR 8%. Stock at ₹3,000–3,200.</div></div>
+        <div class="sc base"><div class="sc-t" style="color:var(--a)">🚶 Base</div><div class="sc-b">Lakshya '26 achieved; revenue CAGR 14%; net profit CAGR 16–18%; stock at ₹5,000–5,500 over 3 years on re-rating.</div></div>
+        <div class="sc bull"><div class="sc-t" style="color:var(--g)">🚀 Bull</div><div class="sc-b">Defence + data centre orders + India infra supercycle; revenue CAGR 18%; margins expand; L&T at ₹6,500–7,000 in 3–4 years.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="vb vg">
+    <div class="vb-t g">MODERATE-STRONG — India's Infrastructure Compounder</div>
+    <div class="vb-d">L&T is the purest large-cap play on India's infrastructure decade. Its ₹5.5+ lakh Cr order book, 15%+ revenue and profit CAGR, and expanding into defence and data centres make it a structurally positioned compounder. The stock trades at a reasonable 28–35x P/E for the quality of business and earnings visibility. Q3 FY26 profit dip was timing-related, not structural. The key risk is government capex slowdown, but with a multi-year infra commitment from GoI and growing Middle East exposure, the probability is low. One of the more balanced risk-reward propositions in this list.</div>
+    <div class="vb-disc">VIEW only · Not a buy/sell recommendation</div>
+  </div>
+</div>
+
+<!-- ══════════════ 6: LTM ══════════════ -->
+<div class="spanel" id="s6">
+  <div class="hero">
+    <div>
+      <div class="h-tag">NSE: LTM · IT Services · L&T Group · Formerly LTIMindtree</div>
+      <div class="h-name">LTM Limited<br><span style="font-size:16px;color:var(--muted);font-weight:400">(formerly LTIMindtree)</span></div>
+      <div class="h-desc">A global technology consulting and digital solutions company — formed by the 2022 merger of L&T Infotech and Mindtree. Rebranded to LTM Limited in March 2026. Serves BFSI (largest vertical), tech & media, manufacturing, consumer, and healthcare globally. Americas 55% + Europe 37% of revenue. Key differentiators: BFSI depth (banking transformation), AI platforms (BlueVerse — AppIQ, AgentIQ, FusionIQ launched Mar 2026), and L&T Group backing. Named NVIDIA 'Rising Star Consulting Partner of the Year' at GTC 2026.</div>
+    </div>
+    <div>
+      <div class="h-price">₹4,107</div>
+      <div class="h-price-sub">NSE CMP · Apr 1, 2026</div>
+      <div class="h-range">52W: <span>₹4,000</span> — <span>₹6,430</span></div>
+      <div style="margin-top:9px"><span class="sig sig-a">📊 MODERATE / WATCH</span></div>
+    </div>
+  </div>
+
+  <div class="g4">
+    <div class="mt"><div class="mt-l">Market Cap</div><div class="mt-v">₹1.21L Cr</div><div class="mt-s">NSE Apr 2026</div></div>
+    <div class="mt"><div class="mt-l">P/E (TTM)</div><div class="mt-v">~25x</div><div class="mt-s">Near IT sector low — cheap vs TCS</div></div>
+    <div class="mt"><div class="mt-l">EBITDA Margin</div><div class="mt-v">17.3%</div><div class="mt-s">Q3 FY26 — stable</div></div>
+    <div class="mt"><div class="mt-l">Revenue Q3 FY26</div><div class="mt-v">₹10,781 Cr</div><div class="mt-s">+11.6% YoY · Good momentum</div></div>
+    <div class="mt"><div class="mt-l">Net Profit Q3 FY26</div><div class="mt-v">₹970 Cr</div><div class="mt-s">-11% YoY (exceptional items)</div></div>
+    <div class="mt"><div class="mt-l">1Y Target (analysts)</div><div class="mt-v">₹5,836</div><div class="mt-s">Yahoo Finance consensus</div></div>
+    <div class="mt"><div class="mt-l">Dividend Yield</div><div class="mt-v">~1.6%</div><div class="mt-s">₹67/sh forward</div></div>
+    <div class="mt"><div class="mt-l">Deal Win (Jan 2026)</div><div class="mt-v">$158M</div><div class="mt-s">5-yr UK client contract</div></div>
+  </div>
+
+  <div class="flag"><strong>⚠ Q3 FY26 PROFIT -31% — EXCEPTIONAL ITEMS:</strong> Q3 FY26 reported PAT fell 30.73% YoY to ₹970 Cr largely due to exceptional charges, while revenue grew 11.6% YoY. Adjusted operational performance is broadly stable at ~16% EBITDA margin. Q4 FY26 results (expected Apr 22, 2026) will provide a cleaner read — watch this closely.</div>
+  <div class="flag"><strong>⚠ NAME CHANGE — LTIMindtree → LTM Limited:</strong> Effective March 17, 2026, the company formally rebranded to LTM Limited, focusing on 'business creativity' in AI-centric services. The rebrand signals a strategic AI-first pivot, but ticker and fundamentals remain the same.</div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="sl">vs IT Peers (Mid-large cap)</div>
+      <table>
+        <thead><tr><th>Company</th><th>P/E</th><th>Rev Growth</th><th>EBITDA Margin</th><th>Signal</th></tr></thead>
+        <tbody>
+          <tr class="peer-you"><td>LTM ◀</td><td class="pos">~25x</td><td class="pos">~12%</td><td class="neu">17.3%</td><td><span class="bg bg-g">RELATIVELY CHEAP</span></td></tr>
+          <tr><td>TCS</td><td>~22x</td><td>~5%</td><td class="pos">25.2%</td><td><span class="bg bg-b">LARGE / STABLE</span></td></tr>
+          <tr><td>Infosys</td><td>~21x</td><td>~5%</td><td>~21%</td><td><span class="bg bg-b">CHEAP</span></td></tr>
+          <tr><td>Coforge</td><td>~40x</td><td>~15%</td><td>~17%</td><td><span class="bg bg-a">EXPENSIVE</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="sl">3-Year Scenarios</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="sc bear"><div class="sc-t" style="color:var(--r)">🐢 Bear</div><div class="sc-b">IT spending stays muted; merger synergies slow to materialise; BFSI vertical faces headwinds. Revenue CAGR 8%. Stock at ₹3,200–3,800.</div></div>
+        <div class="sc base"><div class="sc-t" style="color:var(--a)">🚶 Base</div><div class="sc-b">IT recovery by FY27; BlueVerse AI platform gains traction; revenue CAGR 14%; EBITDA margin stable 17–18%; stock at ₹6,000–7,000 in 3 years.</div></div>
+        <div class="sc bull"><div class="sc-t" style="color:var(--g)">🚀 Bull</div><div class="sc-b">AI-led transformation drives large deal wins; global banking modernisation wave; margins expand to 20%+; stock at ₹9,000–10,000.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="vb va">
+    <div class="vb-t a">MODERATE — Underappreciated IT Quality at a Relative Discount</div>
+    <div class="vb-d">LTM is a high-quality IT services company trading at ~25x P/E — among the lowest in its peer group. The 11.6% revenue growth in Q3 FY26, strong BFSI vertical depth, proprietary BlueVerse AI platform, and L&T Group credibility make it a compelling mid-large cap IT play. The concern: merger integration costs and the Q3 exceptional charges have clouded earnings visibility temporarily. The AI rebrand is ambitious but unproven. For patient 3-year investors, LTM at current levels — down ~36% from 52W high — offers meaningful upside if IT spending normalises and AI platforms contribute.</div>
+    <div class="vb-disc">VIEW only · Not a buy/sell recommendation</div>
+  </div>
+</div>
+
+<!-- ══════════════ 7: SUZLON ══════════════ -->
+<div class="spanel" id="s7">
+  <div class="hero">
+    <div>
+      <div class="h-tag">NSE: SUZLON · Renewable Energy · Wind Turbine Manufacturer</div>
+      <div class="h-name">Suzlon Energy Ltd</div>
+      <div class="h-desc">India's largest wind energy solutions provider — designs, manufactures, executes, and maintains wind turbine generators (WTGs). 21 GW installed across 17 countries; 15+ GW O&M portfolio (India's largest wind O&M company). Flagship S144 turbine (3.15 MW) has 5+ GW in firm orders, accounting for 91% of 5.6 GW order book as of May 2025. Revenue has nearly doubled in FY25 (+67% to ₹10,851 Cr). Debt-free after a decade-long restructuring. India's wind energy target of 140 GW by 2030 is a secular tailwind.</div>
+    </div>
+    <div>
+      <div class="h-price">₹39.6</div>
+      <div class="h-price-sub">NSE CMP · Mar 30, 2026</div>
+      <div class="h-range">52W: <span>₹38.2</span> — <span>₹74.3</span></div>
+      <div style="margin-top:9px"><span class="sig sig-a">⚡ MODERATE / HIGH GROWTH-RISK</span></div>
+    </div>
+  </div>
+
+  <div class="flag fg"><strong>✅ EXPLOSIVE GROWTH + DEBT-FREE TURNAROUND:</strong> Suzlon reported FY25 revenue +67% YoY and net profit +214% YoY (₹2,072 Cr). Q3 FY26 revenue +42% YoY to ₹4,228 Cr; net profit +15% YoY. Zero net debt — a complete reversal from the debt crisis that almost destroyed the company. O&M providing steady recurring revenue.</div>
+  <div class="flag"><strong>⚠ PROMOTER HOLDING VERY LOW:</strong> Promoter holding is only 11.7% — significantly below safe norms (typically 40%+). This is a legacy of the debt restructuring and stake dilution. Low promoter skin in the game is a governance watch point. No pledging currently.</div>
+
+  <div class="g4">
+    <div class="mt"><div class="mt-l">Market Cap</div><div class="mt-v">₹54,391 Cr</div><div class="mt-s">Screener.in</div></div>
+    <div class="mt"><div class="mt-l">P/E (TTM)</div><div class="mt-v">~17–26x</div><div class="mt-s">Below 3Y avg ~43x — cheap</div></div>
+    <div class="mt"><div class="mt-l">Revenue (FY25)</div><div class="mt-v">₹10,851 Cr</div><div class="mt-s">+67% YoY · Stockanalysis</div></div>
+    <div class="mt"><div class="mt-l">Net Profit (FY25)</div><div class="mt-v">₹2,072 Cr</div><div class="mt-s">+214% YoY</div></div>
+    <div class="mt"><div class="mt-l">Q3 FY26 Revenue</div><div class="mt-v">₹4,228 Cr</div><div class="mt-s">+42% YoY</div></div>
+    <div class="mt"><div class="mt-l">Order Book</div><div class="mt-v">5.6 GW</div><div class="mt-s">S144 = 91% of book</div></div>
+    <div class="mt"><div class="mt-l">Promoter Holding</div><div class="mt-v">11.7%</div><div class="mt-s">🚩 Low — monitor</div></div>
+    <div class="mt"><div class="mt-l">Debt/Equity</div><div class="mt-v">~0x</div><div class="mt-s">Net debt-free · Full turnaround</div></div>
+  </div>
+
+  <div class="g2">
+    <div class="card cg">
+      <div class="sl">Valuation vs History</div>
+      <table>
+        <thead><tr><th>Metric</th><th>Current</th><th>3Y Avg</th><th>Signal</th></tr></thead>
+        <tbody>
+          <tr><td>P/E</td><td class="pos">~17–26x</td><td class="neg">~43x</td><td><span class="bg bg-g">CHEAP vs OWN HISTORY</span></td></tr>
+          <tr><td>EV/EBITDA</td><td class="pos">~20x</td><td class="neg">~39x</td><td><span class="bg bg-g">CHEAP</span></td></tr>
+          <tr><td>Revenue CAGR (TTM)</td><td class="pos">+67% FY25</td><td>—</td><td><span class="bg bg-g">EXCEPTIONAL</span></td></tr>
+          <tr><td>Net Profit CAGR (FY25)</td><td class="pos">+214%</td><td>—</td><td><span class="bg bg-g">TURNAROUND</span></td></tr>
+          <tr><td>52W stock performance</td><td class="neg">-47%</td><td>—</td><td><span class="bg bg-r">SHARP CORRECTION</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="sl">3-Year Scenarios</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="sc bear"><div class="sc-t" style="color:var(--r)">🐢 Bear</div><div class="sc-b">Policy delays in wind auctions; execution bottlenecks; competition from Inox Wind/Adani Green. Revenue CAGR 15%; margins flat. Stock at ₹30–40.</div></div>
+        <div class="sc base"><div class="sc-t" style="color:var(--a)">🚶 Base</div><div class="sc-b">India wind capacity additions of 10–12 GW/yr from FY27; Suzlon captures 30–35% market share; revenue CAGR 25–30%; net profit CAGR 30%+. Stock at ₹75–90.</div></div>
+        <div class="sc bull"><div class="sc-t" style="color:var(--g)">🚀 Bull</div><div class="sc-b">140 GW 2030 target drives supercycle; Suzlon wins large corporate PPAs (steel, cement, NTPC); O&M recurring revenue scales. Stock at ₹120–150+.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="vb va">
+    <div class="vb-t a">MODERATE-HIGH RISK / REWARD — India Wind Supercycle Bet</div>
+    <div class="vb-d">Suzlon is one of the most dramatic turnaround stories in India Inc — from near-bankruptcy to debt-free, with revenue growing 67% in FY25. The S144 turbine is winning large orders and the 5.6 GW order book provides ~12–18 months of revenue visibility. At 17–26x P/E vs its own 3-year average of 43x, the stock looks attractive on a relative basis. The key risks: low promoter holding (11.7%), dependence on government policy for wind auctions, and execution at scale. The stock has already corrected 47% from its peak — partially pricing in these risks. For investors who believe India's wind capacity will meaningfully scale towards the 140 GW target, Suzlon is the most direct large-cap proxy.</div>
+    <div class="vb-disc">VIEW only · Not a buy/sell recommendation</div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<!-- FOOTER -->
+<div class="ftr">
+  <strong style="color:var(--txt)">Stocks covered:</strong> HAVELLS · ABBOTINDIA · CROMPTON · HAL · COFORGE · LT · LTM (formerly LTIMindtree, rebranded Mar 2026) · SUZLON &nbsp;|&nbsp;
+  <strong style="color:var(--txt)">Sources:</strong> NSE, BSE, Screener.in, Tickertape, ValueResearchOnline, Stockanalysis.com, Groww, INDmoney, ICICI Direct, Business Standard, Investing.com, TCS.com &nbsp;|&nbsp; Data as of March–April 2026. Figures approximated from secondary research — always verify independently.<br>
+  <strong style="color:var(--txt)">Disclaimer:</strong> This is a reference document only. NOT investment advice, a buy/sell recommendation, or SEBI-registered research. AI can make errors. Verify all numbers at NSE/BSE/Screener.in. Past performance does not guarantee future results. Consult a SEBI-registered advisor before investing.
+</div>
+
+<script>
+function show(n){
+  document.querySelectorAll('.spanel').forEach((p,i)=>{p.className='spanel'+(i===n?' on':'');});
+  document.querySelectorAll('.snav-btn').forEach((b,i)=>{b.className='snav-btn'+(i===n?' active':'');});
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
